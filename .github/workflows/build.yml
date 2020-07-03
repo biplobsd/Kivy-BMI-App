@@ -1,0 +1,30 @@
+name: Build debug apk
+on: [push, pull_request]
+
+jobs:
+  # Build job. Builds every demo app for Android with Buildozer
+  build-android:
+    name: Build Android [${{ matrix.name }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [Kivy-BMI-App]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build with Buildozer
+      uses: ArtemSBulgakov/buildozer-action@v1
+      id: buildozer
+      with:
+        workdir: .
+        buildozer_version: master
+        command: buildozer android debug
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: package ${{ matrix.name }}
+        path: ${{ steps.buildozer.outputs.filename }}
